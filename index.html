@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Bigg Boss – Reality Show Simulator</title>
+  <meta name="description" content="An AI-powered Bigg Boss reality show simulator where N contestants compete in algorithm-based tasks including A*, BFS, DFS, Minimax, Genetic Algorithm and more."/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     SCREEN 0: WELCOME
+══════════════════════════════════ -->
+<section class="screen active" id="welcome-screen">
+  <div class="welcome-hero">
+    
+    <!-- Host Photo -->
+    <div class="welcome-host-wrap">
+      <img id="welcome-host-img" src="images/salman.jpg" alt="Salman Khan" class="welcome-host-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"/>
+      <div class="welcome-host-fallback" style="display:none;">
+        <div style="font-size:4rem; margin-bottom:0.5rem">🤵</div>
+        <div style="font-size:0.8rem; opacity:0.7; letter-spacing:0.04em">Upload Salman Khan Photo</div>
+      </div>
+      <div class="welcome-host-overlay"></div>
+    </div>
+    
+    <!-- Animated Eye (Reusing SVG but scaled) -->
+    <div class="bb-eye-container" style="margin-top: -3rem; z-index: 2; transform: scale(0.85); margin-bottom:-1rem">
+      <div class="bb-eye-glow"></div>
+      <svg class="bb-eye-svg" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 60 Q100 -20 190 60 Q100 140 10 60 Z" fill="#1a0a2e" stroke="url(#eyeGradWelcome)" stroke-width="3"/>
+        <circle cx="100" cy="60" r="32" fill="url(#irisGradWelcome)"/>
+        <circle cx="100" cy="60" r="16" fill="#09090f"/>
+        <circle id="welcome-eye-pupil" cx="100" cy="60" r="16" fill="#09090f"/>
+        <circle cx="108" cy="52" r="5" fill="rgba(255,255,255,0.6)"/>
+        <defs>
+          <linearGradient id="eyeGradWelcome" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#ffd700"/><stop offset="50%" stop-color="#ff4db8"/><stop offset="100%" stop-color="#7c3aed"/>
+          </linearGradient>
+          <radialGradient id="irisGradWelcome" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#a855f7"/><stop offset="60%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#3b0764"/>
+          </radialGradient>
+        </defs>
+      </svg>
+    </div>
+    
+    <!-- Dramatic Main Title -->
+    <h1 class="welcome-title">BIGG BOSS</h1>
+    <p class="welcome-subtitle">HOSTED BY SALMAN KHAN</p>
+    
+    <!-- Enter Button -->
+    <div style="margin: 2.5rem 0 1rem">
+      <button class="btn btn-gold" id="start-journey-btn" style="padding: 1.2rem 3rem; font-size: 1.3rem; border-radius: 40px; font-weight: 800; letter-spacing: 0.05em; box-shadow: 0 0 40px rgba(255,215,0,0.5)">
+        👁️ Enter the Simulator
+      </button>
+    </div>
+    
+    <!-- Audio & Photo Upload Tools -->
+    <audio id="welcome-audio" loop preload="auto">
+      <source src="audio/theme.mp3" type="audio/mpeg"/>
+    </audio>
+
+    <div class="bb-audio-row" style="margin-top: 2rem; justify-content: center; z-index: 10; position:relative;">
+      <button class="bb-audio-btn" id="audio-toggle-btn" title="Play/Pause Welcome Song" style="border-color:rgba(255,255,255,0.3); background:rgba(255,255,255,0.1); color:#fff;">🔊 Play Theme</button>
+      <label class="bb-upload-label" title="Upload your Bigg Boss theme song" style="border-color:rgba(255,255,255,0.3); background:rgba(255,255,255,0.1); color:#fff; cursor:pointer;">
+        🎵 Upload Song
+        <input type="file" id="audio-upload" accept="audio/*" style="display:none"/>
+      </label>
+      <label class="welcome-upload-label" style="cursor:pointer; padding: 0.45rem 1.1rem; border-radius:20px; border: 1px solid rgba(255,255,255,0.3); background:rgba(255,255,255,0.1); color:#fff; transition: all 0.2s">
+        📸 Upload Host Photo
+        <input type="file" id="host-photo-input" accept="image/*" style="display:none"/>
+      </label>
+    </div>
+    <div id="audio-status" class="bb-audio-status" style="margin-top:0.5rem; text-align:center;"></div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     SCREEN 1: SETUP
+══════════════════════════════════ -->
+<section class="screen" id="setup-screen">
+  <!-- ── SETUP SCREEN CONTENT ── -->
+
+  <!-- ── DRAMATIC HEADER ── -->
+  <div class="bb-hero">
+    <!-- Animated eye SVG -->
+    <div class="bb-eye-container">
+      <div class="bb-eye-glow"></div>
+      <svg class="bb-eye-svg" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+        <!-- Eye shape -->
+        <path d="M10 60 Q100 -20 190 60 Q100 140 10 60 Z" fill="#1a0a2e" stroke="url(#eyeGrad)" stroke-width="3"/>
+        <!-- Iris -->
+        <circle cx="100" cy="60" r="32" fill="url(#irisGrad)"/>
+        <!-- Pupil -->
+        <circle cx="100" cy="60" r="16" fill="#09090f"/>
+        <circle id="eye-pupil" cx="100" cy="60" r="16" fill="#09090f"/>
+        <!-- Pupil highlight -->
+        <circle cx="108" cy="52" r="5" fill="rgba(255,255,255,0.6)"/>
+        <!-- Gradients -->
+        <defs>
+          <linearGradient id="eyeGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#ffd700"/>
+            <stop offset="50%" stop-color="#ff4db8"/>
+            <stop offset="100%" stop-color="#7c3aed"/>
+          </linearGradient>
+          <radialGradient id="irisGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#a855f7"/>
+            <stop offset="60%" stop-color="#7c3aed"/>
+            <stop offset="100%" stop-color="#3b0764"/>
+          </radialGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <!-- Title -->
+    <h1 class="bb-main-title">
+      <span class="bb-title-bigg">BIGG</span>
+      <span class="bb-title-boss">BOSS</span>
+    </h1>
+    <div class="bb-subtitle-bar">AI REALITY SHOW SIMULATOR &nbsp;•&nbsp; SEASON 1</div>
+
+    <!-- (Audio controls moved to Welcome screen) -->
+  </div>
+
+
+
+
+  <!-- ── SETUP CARD ── -->
+  <div class="setup-card">
+
+    <!-- House Photo Upload -->
+    <div class="house-upload-section">
+      <div class="setup-label" style="margin-bottom:0.6rem">🏠 Bigg Boss House Photo</div>
+      <div class="house-upload-preview" id="house-preview-wrap">
+        <img id="house-preview-img" src="images/house.png" alt="House"
+          onerror="this.style.opacity='0.3'"  class="house-preview-img"/>
+        <div class="house-preview-overlay">
+          <label class="house-upload-btn" for="house-photo-input">
+            📷 Change Photo
+            <input type="file" id="house-photo-input" accept="image/*" style="display:none"/>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="setup-label">Number of Contestants</div>
+    <div class="setup-value" id="count-display">6</div>
+    <input type="range" id="contestant-count" min="3" max="12" value="6" step="1"/>
+    <div class="range-labels"><span>3</span><span>6</span><span>9</span><span>12</span></div>
+
+    <div class="sep"></div>
+
+    <div class="names-section">
+      <div class="setup-label" style="margin-bottom:0.75rem">Contestant Names <span style="color:var(--text-dim);font-size:0.75rem">(optional)</span></div>
+      <div class="names-grid" id="names-grid"></div>
+    </div>
+
+    <button class="btn btn-primary" id="enter-house-btn">🚪 Enter the House</button>
+
+    <div class="sep"></div>
+
+    <div style="background:rgba(168,85,247,0.07);border:1px solid rgba(168,85,247,0.2);border-radius:12px;padding:1rem;font-size:0.82rem;color:var(--text-dim);line-height:1.6">
+      <strong style="color:var(--accent)">⚡ 8 AI Algorithm Tasks:</strong><br/>
+      A* &nbsp;·&nbsp; Bidirectional BFS &nbsp;·&nbsp; DFS &nbsp;·&nbsp; Maze Solver<br/>
+      UCS &nbsp;·&nbsp; Hill Climbing &nbsp;·&nbsp; Minimax &nbsp;·&nbsp; Genetic Algorithm
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     TASK PREVIEW MODAL (overlay)
+══════════════════════════════════ -->
+<div id="task-preview-overlay" class="task-preview-overlay" style="display:none">
+  <div class="task-preview-modal">
+
+    <!-- Header bar -->
+    <div class="tpm-header">
+      <span id="tpm-task-num" class="tpm-num">TASK 1 OF 8</span>
+      <span id="tpm-algo-badge" class="tpm-algo-badge">A* Search</span>
+    </div>
+
+    <!-- Big image -->
+    <div class="tpm-image-wrap">
+      <img id="tpm-image" src="" alt="Task visual" class="tpm-image"/>
+      <div class="tpm-image-shine"></div>
+      <div id="tpm-icon-overlay" class="tpm-icon-overlay">🌀</div>
+    </div>
+
+    <!-- Title + description -->
+    <div class="tpm-body">
+      <h2 id="tpm-name" class="tpm-name">Escape the Labyrinth</h2>
+      <p id="tpm-desc" class="tpm-desc">Navigate a random maze using A*...</p>
+
+      <div class="tpm-long-desc-scroll">
+        <p id="tpm-long-desc" class="tpm-long-desc">Details load here...</p>
+      </div>
+
+      <!-- Scoring rules pills -->
+      <div class="tpm-rules" id="tpm-rules">
+        <span class="tpm-rule-pill">⚡ Algorithm-evaluated</span>
+        <span class="tpm-rule-pill">🎯 Scored 0–100</span>
+        <span class="tpm-rule-pill">🏆 All contestants compete</span>
+      </div>
+    </div>
+
+    <!-- Countdown & start button -->
+    <div class="tpm-footer">
+      <div class="tpm-countdown-wrap">
+        <div class="tpm-countdown-ring">
+          <svg viewBox="0 0 64 64" width="64" height="64">
+            <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4"/>
+            <circle id="tpm-ring-circle" cx="32" cy="32" r="28" fill="none"
+              stroke="#ffd700" stroke-width="4"
+              stroke-dasharray="175.93" stroke-dashoffset="0"
+              stroke-linecap="round"
+              transform="rotate(-90 32 32)"/>
+          </svg>
+          <span id="tpm-countdown" class="tpm-countdown-num">5</span>
+        </div>
+        <span class="tpm-countdown-label">Starting in…</span>
+      </div>
+      <button id="tpm-start-now-btn" class="btn btn-gold tpm-start-btn">▶ Start Now</button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════
+     VOTING BREAK OVERLAY
+══════════════════════════════════ -->
+<div id="voting-overlay" class="voting-overlay" style="display:none">
+  <div class="voting-modal">
+
+    <!-- Header -->
+    <div class="vm-header">
+      <div class="vm-header-left">
+        <div class="vm-fire">🔥</div>
+        <div>
+          <div id="vb-break-num" class="vm-break-label">MID-SEASON BREAK 1</div>
+          <div id="vb-subtitle" class="vm-subtitle">Vote to save 2–4 contestants!</div>
+        </div>
+      </div>
+      <div class="vm-boost-legend">
+        <div class="vm-legend-title">⚡ Vote Rewards</div>
+        <div id="vb-boost-pills" class="vm-boost-pills"></div>
+      </div>
+    </div>
+
+    <!-- Instruction bar -->
+    <div class="vm-instruction">
+      <span class="vm-inst-icon">👇</span>
+      Click on <strong>2 to 4 contestants</strong> you want to give a <strong>Comeback Boost</strong> to.
+      First voted gets the biggest bonus!
+    </div>
+
+    <!-- Contestant grid -->
+    <div class="vm-body">
+      <div id="vb-contestant-grid" class="vm-contestant-grid"></div>
+    </div>
+
+    <!-- Footer: submit -->
+    <div class="vm-footer">
+      <div class="vm-footer-note">
+        🗳️ Your votes directly change the ranking — choose wisely!
+      </div>
+      <button id="vb-submit-btn" class="btn btn-primary vm-submit-btn" disabled>
+        Select 2–4 contestants (0 chosen)
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<section class="screen" id="game-screen">
+  <div class="game-header">
+    <div class="game-logo">👁️ AI BIGG BOSS</div>
+    <div style="display:flex;align-items:center;gap:0.5rem;color:var(--text-dim);font-size:0.85rem" id="status-text">Ready to start Season</div>
+    <div class="game-controls">
+      <button class="btn btn-gold btn-sm" id="run-task-btn">▶ Run Next Task</button>
+      <button class="btn btn-outline btn-sm" id="run-all-btn">⚡ Auto-Run Season</button>
+    </div>
+  </div>
+
+  <!-- Task Progress Dots -->
+  <div id="task-dots"></div>
+
+  <!-- Current Task Banner with Visual -->
+  <div id="task-banner" style="border-color:var(--border)">
+    <div class="task-icon-big" id="task-icon">🌀</div>
+    <div class="task-banner-info">
+      <div class="task-banner-title" id="task-name">Escape the Labyrinth</div>
+      <div class="task-banner-desc" id="task-desc">Navigate a random maze using A* Search</div>
+      <div class="task-num" id="task-num">Task 1 of 8</div>
+    </div>
+    <!-- Task Visual Thumbnail shown during execution -->
+    <img id="task-running-img" src="" alt="Task" class="task-running-img" style="display:none"/>
+    <span class="task-algo-badge" id="task-algo-badge" style="background:#7c3aed">A* Search</span>
+  </div>
+  <input type="hidden" id="task-algo" value="A* Search"/>
+
+  <div class="game-grid">
+    <!-- Left: House Photo + Contestant Grid -->
+    <div>
+      <!-- Bigg Boss House Photo -->
+      <div class="house-photo-wrap">
+        <img src="images/house.png" alt="Bigg Boss House" class="house-photo"/>
+        <div class="house-photo-overlay">
+          <span class="house-label">🏠 THE BIGG BOSS HOUSE</span>
+          <span class="house-pool-tag">🏊 Swimming Pool · 🌿 Grassy Gardens</span>
+        </div>
+      </div>
+      <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-dim);margin:0.85rem 0 0.65rem">👥 Contestants</div>
+      <div id="house-grid"></div>
+    </div>
+
+    <!-- Right: Results + Log + Leaderboard -->
+    <div class="right-panel">
+
+      <div id="live-results-panel">
+        <div class="panel-title">📊 Task Results</div>
+        <div id="live-results">
+          <div style="color:var(--text-dim);font-size:0.85rem;padding:1rem;text-align:center">Run a task to see results</div>
+        </div>
+      </div>
+
+      <div id="algo-log-panel">
+        <div class="panel-title">🖥️ Algorithm Console</div>
+        <div id="algo-log">
+          <div class="log-line">▶ Awaiting task execution...</div>
+        </div>
+        <div id="processing-label"></div>
+      </div>
+
+      <div id="leaderboard-section">
+        <div class="panel-title">🏆 Leaderboard</div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Contestant</th><th>Total</th><th>Avg</th><th>Wins</th><th>Scores</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+              <tr><td colspan="6" style="color:var(--text-dim);text-align:center;padding:1rem">No data yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     SCREEN 3: WINNER
+══════════════════════════════════ -->
+<section class="screen" id="winner-screen">
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="winner-content">
+    <div class="winner-crown">👑</div>
+    <div class="winner-title">Season 1 Winner</div>
+
+    <div id="winner-avatar-wrap" class="winner-avatar-wrap"></div>
+    <div id="winner-name">Contestant</div>
+
+    <div class="winner-stats">
+      <div class="winner-stat">
+        <div class="val" id="winner-score">0</div>
+        <div class="lbl">Total Points</div>
+      </div>
+      <div class="winner-stat">
+        <div class="val" id="winner-avg">0</div>
+        <div class="lbl">Avg Score</div>
+      </div>
+      <div class="winner-stat">
+        <div class="val" id="winner-wins">0</div>
+        <div class="lbl">Task Wins</div>
+      </div>
+    </div>
+
+    <div style="color:var(--text-dim);font-size:0.9rem;margin-bottom:1rem">🏆 Top 3 Finalists</div>
+    <div id="final-podium"></div>
+
+    <div class="winner-actions">
+      <button class="btn btn-gold" id="new-season-btn">🔄 New Season</button>
+      <button class="btn btn-outline" id="view-full-lb-btn">📊 Full Leaderboard</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     SCRIPTS
+══════════════════════════════════ -->
+<script src="js/algorithms.js"></script>
+<script src="js/contestants.js"></script>
+<script src="js/preview.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/game.js"></script>
+<script src="js/voting.js"></script>
+<script src="js/app.js"></script>
+<script src="js/setup.js"></script>
+</body>
+</html>
